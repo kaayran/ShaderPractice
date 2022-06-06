@@ -9,7 +9,6 @@ namespace _Scripts.Interactable
     [RequireComponent(typeof(Collider))]
     public class SmoothCube : MonoBehaviour, IDissolvable, IRefreshable
     {
-        [SerializeField] private AnimationCurve _speedCurve;
         [SerializeField] private float _dissolveSpeed = 1f;
 
         private MeshRenderer _meshRenderer;
@@ -49,13 +48,13 @@ namespace _Scripts.Interactable
         public async void Dissolve()
         {
             var material = _meshRenderer.sharedMaterial;
-
-            while (material.GetFloat(_dissolveProperty) > 0f)
+            var dissolveValue = material.GetFloat(_dissolveProperty);
+            
+            while (dissolveValue > 0f)
             {
-                var dissolveValue = material.GetFloat(_dissolveProperty);
-
-                var value = _speedCurve.Evaluate(Time.deltaTime * _dissolveSpeed);
-                material.SetFloat(_dissolveProperty, dissolveValue - value);
+                dissolveValue = material.GetFloat(_dissolveProperty);
+                material.SetFloat(_dissolveProperty, dissolveValue - Time.deltaTime * _dissolveSpeed);
+                
                 await Task.Yield();
             }
         }
